@@ -76,6 +76,16 @@ app.post('/api/users/:id/exercises', async (req, res) => {
 });
 
 
+app.get('/api/users', async(req,res)=>{
+  const users = await User.findById({}).select('_id username');
+  if(!users){
+    res.send("No users");
+  }
+  else{
+    res.json(users);
+  }
+})
+
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
