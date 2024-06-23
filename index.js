@@ -87,6 +87,52 @@ app.get('/api/users', async(req,res)=>{
 })
 
 
+app.get('/api/users/:_id/logs', async(req,res)=>{
+  const {from,to,limit} = req.query;
+  const id = req.params._id;
+  const user = await User.findById(id);
+  if(!users){
+    res.send("Could not find users!")
+    return;
+  }
+  let dateObj = {};
+  if(from){
+    dateObj['$gte'] = new Date(from);
+  }
+  if(to){
+    dateObj['$lte'] = new Date(to);
+  }
+
+  let filter = {
+    user_id: id
+  }
+
+  if(from || to){
+    filter.date = dateObj;
+  }
+
+  const exercise = await Exercise.find(filter).limit(+limit ?? 500);
+
+  const log = exercise.map((e)=>({
+    description: e.description,
+    duration: e.duration,
+    date: e.date.toDateString()
+  }))
+
+  res.json({
+    username: user.username,
+    count: exercise.length,
+    _id: user._id,
+    log
+  })
+
+})
+
+
+
+
+
+
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
